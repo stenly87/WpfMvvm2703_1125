@@ -63,11 +63,17 @@ namespace WpfMvvm2703_1125.mvvm.model
             drinks.Remove(drink);
         }
 
-        internal IEnumerable<Drink> Search(string searchText)
+        internal IEnumerable<Drink> Search(string searchText, string selectedTag)
         {
-            return drinks.Where(s => 
-                s.Title.Contains(searchText) ||
-                s.Description.Contains(searchText));
+            if (selectedTag == "Все теги")
+                return drinks.Where(s => 
+                    s.Title.Contains(searchText) ||
+                    s.Description.Contains(searchText));
+                else
+                    return drinks.Where(s =>
+                    (s.Title.Contains(searchText) ||
+                    s.Description.Contains(searchText)) &&
+                    s.Tags.Contains(selectedTag));
         }
     }
 }

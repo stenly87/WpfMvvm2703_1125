@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,12 +14,23 @@ namespace WpfMvvm2703_1125.mvvm.viewmodel
     public class ListDrinksVM: BaseVM
     {
         private MainVM mainVM;
-        private string searchText;
+        private string searchText = "";
         private ObservableCollection<Drink> drinks;
+        private string selectedTag;
 
         public VmCommand Create { get; set; }
         public VmCommand Edit { get; set; }
         public VmCommand Delete { get; set; }
+
+        public string SelectedTag { 
+            get => selectedTag;
+            set
+            {
+                selectedTag = value;
+                Signal();
+                Search();
+            }
+        }
 
         public string SearchText {
             get => searchText;
@@ -29,7 +41,7 @@ namespace WpfMvvm2703_1125.mvvm.viewmodel
             }
         }
 
-        public List<string> AllTags { get; set; }
+        public ObservableCollection<string> AllTags { get; set; }
         public Drink SelectedDrink { get; set; }
         public ObservableCollection<Drink> Drinks { 
             get => drinks;
@@ -42,7 +54,9 @@ namespace WpfMvvm2703_1125.mvvm.viewmodel
 
         public ListDrinksVM()
         {
-            AllTags = TagsRepository.Instance.GetTags();
+            AllTags = new ObservableCollection<string>( TagsRepository.Instance.GetTags());
+            AllTags.Insert(0, "Все теги");
+            SelectedTag = AllTags[0];
 
             Drinks = new ObservableCollection<Drink>(DrinkRepository.Instance.GetAllDrinks());
 
@@ -78,7 +92,7 @@ namespace WpfMvvm2703_1125.mvvm.viewmodel
         private void Search()
         {
             Drinks = new ObservableCollection<Drink>(
-                DrinkRepository.Instance.Search(SearchText));
+                DrinkRepository.Instance.Search(SearchText, SelectedTag));
 
         }
     }

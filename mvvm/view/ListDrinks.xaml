@@ -46,19 +46,19 @@
             </StackPanel>
             <StackPanel Margin="3">
                 <TextBlock Text="Фильтрация по тегам"/>
-                <List
-                              ItemsSource="{Binding AllTags}"/>
+                <ComboBox SelectedItem="{Binding SelectedTag}" 
+                          ItemsSource="{Binding AllTags}"/>
             </StackPanel>
         </StackPanel>
         <ListView ItemsSource="{Binding Drinks}"
                   SelectedItem="{Binding SelectedDrink}" Grid.Row="2">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn DisplayMemberBinding="{Binding Title}" />
-                    <GridViewColumn DisplayMemberBinding="{Binding Capacity}" />
-                    <GridViewColumn DisplayMemberBinding="{Binding Price}" />
-                    <GridViewColumn DisplayMemberBinding="{Binding Description}"/>
-                    <GridViewColumn>
+                    <GridViewColumn Header="Название" DisplayMemberBinding="{Binding Title}" />
+                    <GridViewColumn Header="Объем" DisplayMemberBinding="{Binding Capacity}" />
+                    <GridViewColumn Header="Цена" DisplayMemberBinding="{Binding Price}" />
+                    <GridViewColumn Header="Состав" DisplayMemberBinding="{Binding Description}"/>
+                    <GridViewColumn Header="Теги" >
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <ItemsControl Style="{StaticResource itemsTag}" ItemsSource="{Binding Tags}"/>

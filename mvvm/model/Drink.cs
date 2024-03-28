@@ -8,10 +8,10 @@ namespace WpfMvvm2703_1125.mvvm.model
 {
     public class Drink
     {//Наименование, теги, объем, цена, состав
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
         public int Capacity { get; set; }
         public double Price { get; set; }
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty; 
         public List<string> Tags { get; set; } = new();
     }
 }
