@@ -8,7 +8,6 @@ namespace WpfMvvm2703_1125.mvvm.viewmodel
 {
     public class EditorDrinkVM : BaseVM
     {
-        bool isEdit = false;
         MainVM mainVM;
         ListBox listTags;
         private Drink drink = new();
@@ -22,18 +21,22 @@ namespace WpfMvvm2703_1125.mvvm.viewmodel
             }
         }
         public VmCommand Save { get; set; }
-        public List<string> AllTags { get; set; }
+        public List<Tag> AllTags { get; set; }
 
         public EditorDrinkVM()
         {
             AllTags = TagsRepository.Instance.GetTags();
 
             Save = new VmCommand(() => {
-                if (!isEdit)
-                    DrinkRepository.Instance.AddDrink(Drink);
                 Drink.Tags.Clear();
-                foreach (string tag in listTags.SelectedItems)
+                foreach (Tag tag in listTags.SelectedItems)
                     Drink.Tags.Add(tag);
+
+                if (Drink.ID == 0) 
+                    DrinkRepository.Instance.AddDrink(Drink);
+                else
+                    DrinkRepository.Instance.UpdateDrink(Drink);
+
                 mainVM.CurrentPage = new ListDrinks(mainVM);
             });
         }
@@ -47,7 +50,6 @@ namespace WpfMvvm2703_1125.mvvm.viewmodel
 
         internal void SetEditDrink(Drink selectedDrink)
         {
-            isEdit = true;
             Drink = selectedDrink;
             foreach (var tag in Drink.Tags)
                 listTags.SelectedItems.Add(tag);

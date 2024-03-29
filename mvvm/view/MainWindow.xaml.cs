@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WpfMvvm2703_1125.mvvm.model;
 
 namespace WpfMvvm2703_1125.mvvm.view
 {

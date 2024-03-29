@@ -16,13 +16,13 @@ namespace WpfMvvm2703_1125.mvvm.viewmodel
         private MainVM mainVM;
         private string searchText = "";
         private ObservableCollection<Drink> drinks;
-        private string selectedTag;
+        private Tag selectedTag;
 
         public VmCommand Create { get; set; }
         public VmCommand Edit { get; set; }
         public VmCommand Delete { get; set; }
 
-        public string SelectedTag { 
+        public Tag SelectedTag { 
             get => selectedTag;
             set
             {
@@ -41,7 +41,7 @@ namespace WpfMvvm2703_1125.mvvm.viewmodel
             }
         }
 
-        public ObservableCollection<string> AllTags { get; set; }
+        public ObservableCollection<Tag> AllTags { get; set; }
         public Drink SelectedDrink { get; set; }
         public ObservableCollection<Drink> Drinks { 
             get => drinks;
@@ -54,11 +54,12 @@ namespace WpfMvvm2703_1125.mvvm.viewmodel
 
         public ListDrinksVM()
         {
-            AllTags = new ObservableCollection<string>( TagsRepository.Instance.GetTags());
-            AllTags.Insert(0, "Все теги");
+            AllTags = new ObservableCollection<Tag>( TagsRepository.Instance.GetTags());
+            AllTags.Insert(0, new Tag { ID = 0, Title = "Все теги" });
             SelectedTag = AllTags[0];
+            string sql = "SELECT d.id, d.Title, d.Capacity, d.Price, d.Description, tt.id AS tagId, tt.Title AS tagTitle FROM CrossDrinkTag cdt, Drink d, TagsTable tt WHERE cdt.idDrink = d.id AND cdt.idTag = tt.id";
 
-            Drinks = new ObservableCollection<Drink>(DrinkRepository.Instance.GetAllDrinks());
+            Drinks = new ObservableCollection<Drink>(DrinkRepository.Instance.GetAllDrinks(sql));
 
             Create = new VmCommand(() =>
             {

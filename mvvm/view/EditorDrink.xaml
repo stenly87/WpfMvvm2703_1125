@@ -24,7 +24,7 @@
             <TextBox Text="{Binding Description}"/>
         </StackPanel>
         <Label Content="Теги"/>
-        <ListBox ItemsSource="{Binding AllTags}" SelectionMode="Multiple"
+        <ListBox DisplayMemberPath="Title" ItemsSource="{Binding AllTags}" SelectionMode="Multiple"
             x:Name="listTags"/>
         <Button Content="Сохранить" Command="{Binding Save}"/>
     </StackPanel>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySqlConnector;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,33 +9,9 @@ namespace WpfMvvm2703_1125.mvvm.model
 {
     public class DrinkRepository
     {
-        List<Drink> drinks = new();
         private DrinkRepository()
         {
-            drinks.Add(new Drink
-            {
-                Title = "Кофе",
-                Capacity = 100,
-                Description = "Кофе с молоком",
-                Price = 10000,
-                Tags = new List<string>(new string[] {
-                  "Арабика",
-                  "Молоко",
-                  "Сахар"
-                 })
-            });
-            drinks.Add(new Drink
-            {
-                Title = "Чай",
-                Capacity = 100,
-                Description = "Чай с молоком",
-                Price = 10000,
-                Tags = new List<string>(new string[] {
-                  "Принцесса дури",
-                  "Молоко",
-                  "Сахар"
-                 })
-            });
+            
         }
 
         static DrinkRepository instance;
@@ -48,32 +25,128 @@ namespace WpfMvvm2703_1125.mvvm.model
             }
         }
 
-        internal IEnumerable<Drink> GetAllDrinks()
+        internal IEnumerable<Drink> GetAllDrinks(string sql)
         {
-           return drinks;
+            var result = new List<Drink>();
+            var connect = MySqlDB.Instance.GetConnection();
+            if (connect == null)
+                return result;
+            using (var mc = new MySqlCommand(sql, connect))
+            using (var reader = mc.ExecuteReader())
+            { 
+                Drink drink = new Drink();
+                int id;
+                while (reader.Read())
+                {
+                    id = reader.GetInt32("id");
+                    if (drink.ID != id)
+                    {
+                        drink = new Drink();
+                        result.Add(drink);
+                        drink.ID = id;
+                        drink.Title = reader.GetString("Title");
+                        drink.Capacity = reader.GetInt32("Capacity");
+                        drink.Price = reader.GetDouble("Price");
+                        drink.Description = reader.GetString("Description");
+                    }
+                    Tag tag = new Tag
+                    {
+                        ID = reader.GetInt32("tagId"),
+                        Title = reader.GetString("tagTitle"),
+                    };
+                    drink.Tags.Add(tag);
+                }
+            }
+            
+            return result;
         }
 
         internal void AddDrink(Drink drink)
         {
-            drinks.Add(drink);
+            var connect = MySqlDB.Instance.GetConnection();
+            if (connect == null)
+                return;
+
+            int id = MySqlDB.Instance.GetAutoID("Drink");
+
+            string sql = "INSERT INTO Drink VALUES (0, @title, @capacity, @price, @description)";
+            using (var mc = new MySqlCommand(sql, connect))
+            {
+                mc.Parameters.Add(new MySqlParameter("title", drink.Title));
+                mc.Parameters.Add(new MySqlParameter("capacity", drink.Capacity));
+                mc.Parameters.Add(new MySqlParameter("price", drink.Price));
+                mc.Parameters.Add(new MySqlParameter("description", drink.Description));
+                if (mc.ExecuteNonQuery() > 0)
+                {
+                    sql = "";
+                    foreach (var tag in drink.Tags)
+                        sql += "INSERT INTO CrossDrinkTag VALUES ("+ id +","+tag.ID+");";
+                    using (var mcCross = new MySqlCommand(sql, connect))
+                        mcCross.ExecuteNonQuery();
+                }
+            }
         }
 
         internal void Remove(Drink drink)
         {
-            drinks.Remove(drink);
+            var connect = MySqlDB.Instance.GetConnection();
+            if (connect == null)
+                return;
+
+            string sql = "DELETE FROM CrossDrinkTag WHERE idDrink = '" + drink.ID + "';"; 
+            sql += "DELETE FROM Drink WHERE id = '" + drink.ID + "';";
+
+            using (var mc = new MySqlCommand(sql, connect))
+                mc.ExecuteNonQuery();
         }
 
-        internal IEnumerable<Drink> Search(string searchText, string selectedTag)
+        internal IEnumerable<Drink> Search(string searchText, Tag selectedTag)
         {
-            if (selectedTag == "Все теги")
-                return drinks.Where(s => 
-                    s.Title.Contains(searchText) ||
-                    s.Description.Contains(searchText));
-                else
-                    return drinks.Where(s =>
-                    (s.Title.Contains(searchText) ||
-                    s.Description.Contains(searchText)) &&
-                    s.Tags.Contains(selectedTag));
+            string sql = "SELECT d.id, d.Title, d.Capacity, d.Price, d.Description, tt.id AS tagId, tt.Title AS tagTitle FROM CrossDrinkTag cdt, Drink d, TagsTable tt WHERE cdt.idDrink = d.id AND cdt.idTag = tt.id";
+            sql += " AND (d.Title LIKE '%" + searchText + "%'";
+            sql += " OR d.Description LIKE '%" + searchText + "%')";
+
+            if (selectedTag.ID != 0)
+            { 
+                var result = GetAllDrinks(sql).Where(s=>s.Tags.FirstOrDefault(s=>s.ID == selectedTag.ID) != null);
+                return result;
+            }
+            return GetAllDrinks(sql);
+            //return drinks.Where(s => 
+            //    s.Title.Contains(searchText) ||
+            //    s.Description.Contains(searchText));
+            //else
+            //    return drinks.Where(s =>
+            //    (s.Title.Contains(searchText) ||
+            //    s.Description.Contains(searchText)) &&
+            //    s.Tags.Contains(selectedTag));
+        }
+
+        internal void UpdateDrink(Drink drink)
+        {
+            var connect = MySqlDB.Instance.GetConnection();
+            if (connect == null)
+                return;
+
+            string sql = "DELETE FROM CrossDrinkTag WHERE idDrink = '" + drink.ID + "';";
+            using (var mc = new MySqlCommand(sql, connect))
+                mc.ExecuteNonQuery();
+
+            sql = "";
+            foreach (var tag in drink.Tags)
+                sql += "INSERT INTO CrossDrinkTag VALUES (" + drink.ID + "," + tag.ID + ");";
+            using (var mcCross = new MySqlCommand(sql, connect))
+                mcCross.ExecuteNonQuery();
+
+            sql = "UPDATE Drink SET Title = @title, Capacity = @capacity, Price = @price, Description = @description WHERE Id = " + drink.ID;
+            using (var mc = new MySqlCommand(sql, connect))
+            {
+                mc.Parameters.Add(new MySqlParameter("title", drink.Title));
+                mc.Parameters.Add(new MySqlParameter("capacity", drink.Capacity));
+                mc.Parameters.Add(new MySqlParameter("price", drink.Price));
+                mc.Parameters.Add(new MySqlParameter("description", drink.Description));
+                mc.ExecuteNonQuery();
+            }
         }
     }
 }

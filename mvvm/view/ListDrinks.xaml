@@ -22,7 +22,7 @@
             <Setter Property="ItemTemplate">
                 <Setter.Value>
                     <DataTemplate>
-                        <Label Content="{Binding}" Margin="1"/>
+                        <Label Content="{Binding Title}" Margin="1"/>
                     </DataTemplate>
                 </Setter.Value>
             </Setter>
@@ -46,7 +46,8 @@
             </StackPanel>
             <StackPanel Margin="3">
                 <TextBlock Text="Фильтрация по тегам"/>
-                <ComboBox SelectedItem="{Binding SelectedTag}" 
+                <ComboBox DisplayMemberPath="Title"
+                          SelectedItem="{Binding SelectedTag}" 
                           ItemsSource="{Binding AllTags}"/>
             </StackPanel>
         </StackPanel>
