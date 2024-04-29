@@ -34,12 +34,13 @@ namespace WpfMvvm2703_1125.mvvm.model
             using (var mc = new MySqlCommand(sql, connect))
             using (var reader = mc.ExecuteReader())
             { 
-                Drink drink = new Drink();
+                Drink drink = null;
                 int id;
                 while (reader.Read())
                 {
                     id = reader.GetInt32("id");
-                    if (drink.ID != id)
+                    drink = result.FirstOrDefault(s => s.ID == id);
+                    if (drink == null)
                     {
                         drink = new Drink();
                         result.Add(drink);
@@ -104,22 +105,14 @@ namespace WpfMvvm2703_1125.mvvm.model
         {
             string sql = "SELECT d.id, d.Title, d.Capacity, d.Price, d.Description, tt.id AS tagId, tt.Title AS tagTitle FROM CrossDrinkTag cdt, Drink d, TagsTable tt WHERE cdt.idDrink = d.id AND cdt.idTag = tt.id";
             sql += " AND (d.Title LIKE '%" + searchText + "%'";
-            sql += " OR d.Description LIKE '%" + searchText + "%')";
+            sql += " OR d.Description LIKE '%" + searchText + "%') order by d.id";
 
             if (selectedTag.ID != 0)
-            { 
+            { // это не включено в запрос, так как в противном случае потеряются теги
                 var result = GetAllDrinks(sql).Where(s=>s.Tags.FirstOrDefault(s=>s.ID == selectedTag.ID) != null);
                 return result;
             }
             return GetAllDrinks(sql);
-            //return drinks.Where(s => 
-            //    s.Title.Contains(searchText) ||
-            //    s.Description.Contains(searchText));
-            //else
-            //    return drinks.Where(s =>
-            //    (s.Title.Contains(searchText) ||
-            //    s.Description.Contains(searchText)) &&
-            //    s.Tags.Contains(selectedTag));
         }
 
         internal void UpdateDrink(Drink drink)

@@ -31,7 +31,7 @@ namespace WpfMvvm2703_1125.mvvm.view
 
         public EditorDrink(MainVM mainVM, Drink selectedDrink) : this(mainVM)
         {
-            ((EditorDrinkVM)DataContext).SetEditDrink(selectedDrink);
+            ((EditorDrinkVM)DataContext).SetEditDrink(selectedDrink, Dispatcher);
         }
     }
 }

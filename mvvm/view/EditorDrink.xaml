@@ -11,6 +11,9 @@
       Title="EditorDrink">
     <Page.Resources>
         <vm:EditorDrinkVM x:Key="editVM"/>
+        <Style x:Key="listItemTag" TargetType="ListBoxItem">
+            <Setter Property="IsSelected" Value="{Binding Selected}"/>
+        </Style>
     </Page.Resources>
     <StackPanel>
         <StackPanel DataContext="{Binding Drink}">
@@ -24,8 +27,12 @@
             <TextBox Text="{Binding Description}"/>
         </StackPanel>
         <Label Content="Теги"/>
-        <ListBox DisplayMemberPath="Title" ItemsSource="{Binding AllTags}" SelectionMode="Multiple"
+        <ListBox DisplayMemberPath="Title"
+                 ItemContainerStyle="{StaticResource listItemTag}"
+                 ItemsSource="{Binding AllTags}"
+                 SelectionMode="Multiple"
             x:Name="listTags"/>
+
         <Button Content="Сохранить" Command="{Binding Save}"/>
     </StackPanel>
 </Page>

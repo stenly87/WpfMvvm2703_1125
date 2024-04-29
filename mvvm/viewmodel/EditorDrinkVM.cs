@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using WpfMvvm2703_1125.mvvm.model;
 using WpfMvvm2703_1125.mvvm.view;
@@ -48,11 +51,17 @@ namespace WpfMvvm2703_1125.mvvm.viewmodel
             this.listTags = listTags;
         }
 
-        internal void SetEditDrink(Drink selectedDrink)
+        internal void SetEditDrink(Drink selectedDrink, System.Windows.Threading.Dispatcher dispatcher)
         {
             Drink = selectedDrink;
             foreach (var tag in Drink.Tags)
-                listTags.SelectedItems.Add(tag);
+            {
+                var search = AllTags.FirstOrDefault(s => s.ID == tag.ID);
+                if (search != null)
+                {
+                    search.Selected = true;
+                }
+            }
         }
     }
 }
