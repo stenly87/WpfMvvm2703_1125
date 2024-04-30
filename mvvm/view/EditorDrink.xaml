@@ -16,21 +16,35 @@
         </Style>
     </Page.Resources>
     <StackPanel>
-        <StackPanel DataContext="{Binding Drink}">
-            <Label Content="Наименование"/>
-            <TextBox Text="{Binding Title}"/>
-            <Label Content="Объем"/>
-            <TextBox Text="{Binding Capacity}"/>
-            <Label Content="Цена"/>
-            <TextBox Text="{Binding Price}"/>
-            <Label Content="Состав"/>
-            <TextBox Text="{Binding Description}"/>
-        </StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <StackPanel DataContext="{Binding Drink}">
+                <Label Content="Наименование"/>
+                <TextBox Text="{Binding Title}"/>
+                <Label Content="Объем"/>
+                <TextBox Text="{Binding Capacity}"/>
+                <Label Content="Цена"/>
+                <TextBox Text="{Binding Price}"/>
+                <Label Content="Состав"/>
+                <TextBox Text="{Binding Description}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1">
+                <Image Height="150" Source="{Binding Drink.Image}"/>
+                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                    <Button Content="Указать изображение"
+                            Command="{Binding PickImage}"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
         <Label Content="Теги"/>
         <ListBox DisplayMemberPath="Title"
                  ItemContainerStyle="{StaticResource listItemTag}"
                  ItemsSource="{Binding AllTags}"
                  SelectionMode="Multiple"
+                 Height="150"
             x:Name="listTags"/>
 
         <Button Content="Сохранить" Command="{Binding Save}"/>

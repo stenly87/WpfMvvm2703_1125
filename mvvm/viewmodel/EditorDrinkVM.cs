@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +26,7 @@ namespace WpfMvvm2703_1125.mvvm.viewmodel
             }
         }
         public VmCommand Save { get; set; }
+        public VmCommand PickImage { get; set; }
         public List<Tag> AllTags { get; set; }
 
         public EditorDrinkVM()
@@ -41,6 +44,16 @@ namespace WpfMvvm2703_1125.mvvm.viewmodel
                     DrinkRepository.Instance.UpdateDrink(Drink);
 
                 mainVM.CurrentPage = new ListDrinks(mainVM);
+            });
+
+            PickImage = new VmCommand(() => {
+                var ofd = new OpenFileDialog();
+                ofd.Filter = "Изображения|*.jpg;*.png";
+            if (ofd.ShowDialog() == true && ofd.FileName != null)
+                {
+                    Drink.Image = File.ReadAllBytes(ofd.FileName);
+                    Signal(nameof(Drink));
+                }
             });
         }
 

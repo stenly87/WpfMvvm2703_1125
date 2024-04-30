@@ -14,5 +14,6 @@ namespace WpfMvvm2703_1125.mvvm.model
         public double Price { get; set; }
         public string Description { get; set; } = string.Empty; 
         public List<Tag> Tags { get; set; } = new();
+        public byte[] Image { get; set; }
     }
 }

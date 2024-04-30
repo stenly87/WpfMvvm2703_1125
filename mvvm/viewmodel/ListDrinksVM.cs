@@ -57,7 +57,7 @@ namespace WpfMvvm2703_1125.mvvm.viewmodel
             AllTags = new ObservableCollection<Tag>( TagsRepository.Instance.GetTags());
             AllTags.Insert(0, new Tag { ID = 0, Title = "Все теги" });
             SelectedTag = AllTags[0];
-            string sql = "SELECT d.id, d.Title, d.Capacity, d.Price, d.Description, tt.id AS tagId, tt.Title AS tagTitle FROM CrossDrinkTag cdt, Drink d, TagsTable tt WHERE cdt.idDrink = d.id AND cdt.idTag = tt.id";
+            string sql = "SELECT d.id, d.Title, d.Capacity, d.Price, d.Description, d.Image, tt.id AS tagId, tt.Title AS tagTitle FROM CrossDrinkTag cdt, Drink d, TagsTable tt WHERE cdt.idDrink = d.id AND cdt.idTag = tt.id order by d.id";
 
             Drinks = new ObservableCollection<Drink>(DrinkRepository.Instance.GetAllDrinks(sql));
 

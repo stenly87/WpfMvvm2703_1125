@@ -1,6 +1,7 @@
 ﻿using MySqlConnector;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -49,6 +50,14 @@ namespace WpfMvvm2703_1125.mvvm.model
                         drink.Capacity = reader.GetInt32("Capacity");
                         drink.Price = reader.GetDouble("Price");
                         drink.Description = reader.GetString("Description");
+                        if (!reader.IsDBNull(reader.GetOrdinal("Image")))
+                        {
+                            using (var mcImg = reader.GetStream("Image")) 
+                            {
+                                drink.Image = new byte[mcImg.Length];
+                                mcImg.Read(drink.Image, 0, drink.Image.Length);
+                            }
+                        }
                     }
                     Tag tag = new Tag
                     {
@@ -70,13 +79,14 @@ namespace WpfMvvm2703_1125.mvvm.model
 
             int id = MySqlDB.Instance.GetAutoID("Drink");
 
-            string sql = "INSERT INTO Drink VALUES (0, @title, @capacity, @price, @description)";
+            string sql = "INSERT INTO Drink VALUES (0, @title, @capacity, @price, @description, @image)";
             using (var mc = new MySqlCommand(sql, connect))
             {
                 mc.Parameters.Add(new MySqlParameter("title", drink.Title));
                 mc.Parameters.Add(new MySqlParameter("capacity", drink.Capacity));
                 mc.Parameters.Add(new MySqlParameter("price", drink.Price));
                 mc.Parameters.Add(new MySqlParameter("description", drink.Description));
+                mc.Parameters.Add(new MySqlParameter("image", drink.Image));
                 if (mc.ExecuteNonQuery() > 0)
                 {
                     sql = "";
@@ -103,7 +113,7 @@ namespace WpfMvvm2703_1125.mvvm.model
 
         internal IEnumerable<Drink> Search(string searchText, Tag selectedTag)
         {
-            string sql = "SELECT d.id, d.Title, d.Capacity, d.Price, d.Description, tt.id AS tagId, tt.Title AS tagTitle FROM CrossDrinkTag cdt, Drink d, TagsTable tt WHERE cdt.idDrink = d.id AND cdt.idTag = tt.id";
+            string sql = "SELECT d.id, d.Title, d.Capacity, d.Price, d.Description, d.Image, tt.id AS tagId, tt.Title AS tagTitle FROM CrossDrinkTag cdt, Drink d, TagsTable tt WHERE cdt.idDrink = d.id AND cdt.idTag = tt.id";
             sql += " AND (d.Title LIKE '%" + searchText + "%'";
             sql += " OR d.Description LIKE '%" + searchText + "%') order by d.id";
 
@@ -131,13 +141,14 @@ namespace WpfMvvm2703_1125.mvvm.model
             using (var mcCross = new MySqlCommand(sql, connect))
                 mcCross.ExecuteNonQuery();
 
-            sql = "UPDATE Drink SET Title = @title, Capacity = @capacity, Price = @price, Description = @description WHERE Id = " + drink.ID;
+            sql = "UPDATE Drink SET Title = @title, Capacity = @capacity, Price = @price, Description = @description, Image = @image WHERE Id = " + drink.ID;
             using (var mc = new MySqlCommand(sql, connect))
             {
                 mc.Parameters.Add(new MySqlParameter("title", drink.Title));
                 mc.Parameters.Add(new MySqlParameter("capacity", drink.Capacity));
                 mc.Parameters.Add(new MySqlParameter("price", drink.Price));
                 mc.Parameters.Add(new MySqlParameter("description", drink.Description));
+                mc.Parameters.Add(new MySqlParameter("image", drink.Image));
                 mc.ExecuteNonQuery();
             }
         }
